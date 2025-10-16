@@ -16,6 +16,17 @@ int numbOfOpponents;
 
 void PlayersPositions(int positionS) {   // refazer isto
 
+void ids(){
+    char[] PlayersIds = new char [numbOfOpponents+HUMAN_PLAYER];
+    PlayersIds[0]=HUMAN_PLAYER;
+    for(int n=1;n<numbOfOpponents;n++){
+        PlayersIds[n]= POSSIBLE_OPPS_IDS[n];
+}
+
+
+
+
+void PlayersPositions(int posS) {// method that creates a new array where the positions of the players are defined
     int trackLength = track.length;
     int positionP = (positionS - 1 + trackLength) % trackLength;
     track[positionP] = HUMAN_PLAYER;
