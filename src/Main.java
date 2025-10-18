@@ -3,6 +3,9 @@ import java.util.Scanner;
 final String QUIT_MESS = "EXIT";
 final String BYE_MESS = "Bye";//TODO trocar isto
 final String ERROR = "Invalid command";
+final String RACE_NOT_OVER ="The race is not over yet!";
+final String ONGOING = " (ongoing)";
+final String RACE_ENDED =" (ended)";
 final char HUMAN_PLAYER ='P';
 final char START ='S';
 final char[] POSSIBLE_OPPS_IDS ={'a','b','c','d','e','f','g','h','i'};
@@ -21,17 +24,10 @@ int numbOfOpponents;
 
 
 
-void play(int addAccel,int player){
-    velocity[player] += addAccel;
-    if(velocity[player]>maxSpeed){
-        velocity[player] = maxSpeed;
-    } else if (velocity[player]<0) {
-        velocity[player] = 0;
-    }
-
-    int nextPosition = (playerPositions[player]+velocity[player] + addAccel+ track.length)% track.length;
-    playerPositions[player] = nextPosition;
-
+void startLapCounter(){
+    int initialLapValue = -1;
+    for(int i=0;i<playerLaps.length;i++)
+        playerLaps[i] = initialLapValue;
 }
 
 
@@ -85,6 +81,7 @@ void initState(){
     playersPositions(posS);
     ids();
     firstVelocity();
+    startLapCounter();
 
 
 }
@@ -100,12 +97,21 @@ void launchRace(Scanner inp){
 
 }
 
-void execQuit(){
-
+void execQuit(Scanner inp){
+    System.out.println(RACE_NOT_OVER);
 }
 
 void execStatus(){
 
+}
+
+String raceStatus(){
+    String status=ONGOING;
+    for(int i=0;i< playerLaps.length;i++){
+        if(playerLaps[i] > raceLaps)
+            status=RACE_ENDED;
+    }
+        return status;
 }
 
 
@@ -115,7 +121,9 @@ void execShow(){
         int pos= playerPositions[i];
         currentTrack[pos] = playersIds[i];
     }
-    System.out.println(currentTrack);
+    System.out.print(currentTrack);
+    System.out.println(raceStatus());
+
 }
 
 
@@ -142,7 +150,18 @@ int accelBots(int i){
     return accelBot;
 }
 
+void play(int addAccel,int player){
+    velocity[player] += addAccel;
+    if(velocity[player]>maxSpeed){
+        velocity[player] = maxSpeed;
+    } else if (velocity[player]<0) {
+        velocity[player] = 0;
+    }
 
+    int nextPosition = (playerPositions[player]+velocity[player] + addAccel+ track.length)% track.length;
+    playerPositions[player] = nextPosition;
+
+}
 
 void execAccel(Scanner inp){
     int addAccel=inp.nextInt();inp.nextLine();
@@ -162,7 +181,7 @@ void execCommands(Scanner inp) {
             case"ACCEL"->execAccel(inp);
             case"SHOW" ->execShow();
             case"STATUS" ->execStatus();
-            case"QUIT" ->execQuit();
+            case"QUIT" ->execQuit(inp);
             default ->System.out.println(ERROR);
         }
     } while (!(option.equals(QUIT_MESS)));
