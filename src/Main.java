@@ -25,7 +25,7 @@ int numbOfOpponents;
 
 
 void startLapCounter(){
-    int initialLapValue = -1;
+    int initialLapValue = 0;
     for(int i=0;i<playerLaps.length;i++)
         playerLaps[i] = initialLapValue;
 }
@@ -97,11 +97,32 @@ void launchRace(Scanner inp){
 
 }
 
-void execQuit(Scanner inp){
+void execQuit(){
     System.out.println(RACE_NOT_OVER);
 }
 
-void execStatus(){
+int knowingWhichPlayerIs(char Id){
+    int i=0;
+    for(i=0;i<playersIds.length;i++){
+        if(Id == playersIds[i]){
+            return i;
+        }
+    }
+    return  -1;
+}
+
+
+void execStatus(Scanner inp){
+    char chossenId = inp.next().charAt(0);
+    int i=knowingWhichPlayerIs(chossenId);
+    System.out.println("Player " + chossenId + ": cell " + playerPositions[i] + ", laps " + playerLaps[i] + "!");
+    //if(raceEnded && chossenId == winnerId){
+        //System.out.println("Race ended: " + chossenId + " won the race!");
+    //} else if (i==-1) {
+        //System.out.println("Player " + chossenId + " does not exist!");
+    //}else
+        //System.out.println("Player" + chossenId + ": cell" + playerPositions[i] + ", laps" + playerLaps[i] + "!");
+
 
 }
 
@@ -115,8 +136,17 @@ String raceStatus(){
 }
 
 
+
+char[] copyTrack(){
+    char[] currentTrack = new char[track.length];
+    for(int i=0;i< track.length;i++){
+        currentTrack[i]=track[i];
+    }
+    return currentTrack;
+}
+
 void execShow(){
-    char [] currentTrack = track.clone();//TODO adicionar o raceStatus
+    char [] currentTrack = copyTrack();//TODO adicionar o raceStatus
     for(int i=0;i<playersIds.length;i++){
         int pos= playerPositions[i];
         currentTrack[pos] = playersIds[i];
@@ -180,8 +210,8 @@ void execCommands(Scanner inp) {
         switch (option){
             case"ACCEL"->execAccel(inp);
             case"SHOW" ->execShow();
-            case"STATUS" ->execStatus();
-            case"QUIT" ->execQuit(inp);
+            case"STATUS" ->execStatus(inp);
+            case"QUIT" ->execQuit();
             default ->System.out.println(ERROR);
         }
     } while (!(option.equals(QUIT_MESS)));
