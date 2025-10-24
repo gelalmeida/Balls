@@ -197,9 +197,6 @@ boolean hasCrossedStartLine(int oldPos, int newPos, int startLinePos) {
         if (startLinePos >= 0 && startLinePos <= newPos) {
             return true;
         }
-        if (startLinePos >= oldPos && startLinePos < trackLength) {
-            return true;
-        }
     }
     return false;
 }
@@ -263,7 +260,10 @@ void execCommands(Scanner inp) {
                 execQuit();
                 return;
             }
-            default ->System.out.println(ERROR);
+            default -> {
+                inp.nextLine();
+                System.out.println(ERROR);
+            }
         }
     } while (!(option.equals(QUIT_MESS)));
     System.out.println(BYE_MESS);
