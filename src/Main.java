@@ -18,7 +18,7 @@ int [] velocity;
 int [] playerPositions;
 int [] oldPositions;
 int[] playerLaps;
-boolean[] hasCompletedFormationLap;
+boolean[] FormationLap;
 char []track;
 int raceLaps;
 int maxSpeed;
@@ -74,7 +74,7 @@ void initState(){
     velocity = new int[numbOfOpponents + 1];
     playerLaps = new int[numbOfOpponents+1];
     oldPositions = new int[numbOfOpponents+1];
-    hasCompletedFormationLap = new boolean[numbOfOpponents+1];
+    FormationLap = new boolean[numbOfOpponents+1];
     int posS = startingLineFounder();
     playersPositions(posS);
     ids();
@@ -113,14 +113,14 @@ int knowingWhichPlayerIs(char Id){
 
 
 void execStatus(Scanner inp){
-    char chossenId = inp.next().charAt(0);
-    int i=knowingWhichPlayerIs(chossenId);
-    if(raceEnded && chossenId == winnerId){
-        System.out.println("Race ended: " + chossenId + " won the race!");
+    char chosenId = inp.next().charAt(0);
+    int i=knowingWhichPlayerIs(chosenId);
+    if(raceEnded && chosenId == winnerId){
+        System.out.println("Race ended: " + chosenId + " won the race!");
     } else if (i ==-1) {
-        System.out.println("Player " + chossenId + " does not exist!");
+        System.out.println("Player " + chosenId + " does not exist!");
     }else
-        System.out.println("Player " + chossenId + ": cell " + playerPositions[i] + ", laps " + playerLaps[i] + "!");
+        System.out.println("Player " + chosenId + ": cell " + playerPositions[i] + ", laps " + playerLaps[i] + "!");
 }
 
 void messagesOfAccel(boolean raceIsConcluded) {
@@ -136,14 +136,9 @@ void messagesOfAccel(boolean raceIsConcluded) {
 
 
 String raceStatus(){
-    String status = ONGOING;
-    for(int i = 0; i < playerLaps.length; i++){
-        if(playerLaps[i] >= raceLaps) {
+    String status = ONGOING;{
+        if(raceEnded) {
             status = RACE_ENDED;
-            if (!raceEnded) {
-                raceEnded = true;
-                winnerId = playersIds[i];
-            }
         }
     }
     return status;
@@ -183,8 +178,7 @@ int accelModifications(int player) {
     if (hasModification(player, OIL) && velocity[player] > MIN_SPEED) {
         velocity[player] = 0;
         return 0;
-    }
-    int modfication = 0;
+    } int modfication = 0;
     if (hasModification(player, BOOST) && velocity[player] < maxSpeed) {
         modfication += 1;
     }
@@ -207,22 +201,20 @@ boolean hasCrossedStartLine(int oldPos, int newPos, int startLinePos) {
             return true;
         }
     }
-
     return false;
 }
 
-void updateLapCounters() {
+void updateLapCounters(int player) {
     int startLinePos = startingLineFounder();
-    for (int i = 0; i < playerPositions.length; i++) {
-        if (hasCrossedStartLine(oldPositions[i], playerPositions[i], startLinePos)) {
-            if (!hasCompletedFormationLap[i]) {
-                hasCompletedFormationLap[i] = true;
+        if (hasCrossedStartLine(oldPositions[player], playerPositions[player], startLinePos)) {
+            if (!FormationLap[player]) {
+                FormationLap[player] = true;
             } else {
-                playerLaps[i]++;
+                playerLaps[player]++;
             }
         }
     }
-}
+
 
 void play(int addAccel, int player) {
     velocity[player] += addAccel;
@@ -236,6 +228,11 @@ void play(int addAccel, int player) {
 
     int nextPosition = (playerPositions[player] + velocity[player] + track.length) % track.length;
     playerPositions[player] = nextPosition;
+    updateLapCounters(player);
+    raceEnded = playerLaps[player]==raceLaps;
+    if (raceEnded){
+        winnerId= playersIds[player];
+    }
 }
 
 void execAccel(Scanner inp) {
@@ -244,14 +241,14 @@ void execAccel(Scanner inp) {
     inp.nextLine();
     int humanMod = accelModifications(0);
     play(addAccel + humanMod, 0);
-    for (int i = 1; i < playersIds.length; i++) {
-        int botMod = accelModifications(i);
-        play(botMod, i);
-    }
-    updateLapCounters();
+    for (int i = 1; i < playersIds.length && !raceEnded; i++) {
+            int botMod = accelModifications(i);
+            play(botMod, i);
+        }
     raceStatus();
     messagesOfAccel(raceIsConcluded);
 }
+
 
 
 void execCommands(Scanner inp) {
